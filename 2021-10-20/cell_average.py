@@ -103,7 +103,6 @@ def tetrahedron_average(point, nodes, values):
 
 
 def tetrahedron_v(p1, p2, p3, p4):
-    """Find volume of tetrahedron"""
     plane = plane_from_3_points(p1, p2, p3)
     dis = abs(dis_point_to_plane(p4, plane))
     triangle_s = np.linalg.norm(np.cross(p2 - p1, p3 - p1)) / 2.0
@@ -157,3 +156,17 @@ def cuboid_average(point, nodes, values):
     value_z = [cuboid_xy_face_average(cube_xyz, point_xyz, ordered_values[:4]),
                cuboid_xy_face_average(cube_xyz, point_xyz, ordered_values[4:])]
     return True, np.average(value_z, weights=weight_z)
+
+
+# point = [0, 0.1, 0]
+# nodes = [[0, 0, 0], [0, 1, 0], [1, 0, 0], [0, 0, 1]]
+# values = [0, 0, 0, 1]
+# print(tetrahedron_average(point, nodes, values))
+
+# point = [0.5, 0.5, 0.5]
+# nodes = [[0, 0, 0], [0, 1, 0], [1, 0, 0], [1, 1, 1],
+#          [1, 0, 1], [0, 0, 1], [1, 1, 0], [0, 1, 1]]
+# values = [0, 0, 0, 1, 0, 0, 0, 0]
+# print(cuboid_average(point, nodes, values))
+
+

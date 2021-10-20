@@ -1,6 +1,8 @@
 import time
+import json
 import numpy as np
 import matplotlib.pyplot as plt
+from tqdm import trange
 import os.path
 path = os.getcwd()
 
@@ -10,7 +12,7 @@ def data_preprocess(file_name, write=False, plot=False, element_size=5e-4):
     node_data = {}
 
     # Read file
-    with open(os.path.dirname(path) + f'\data\{file_name}') as in_file:
+    with open(file_name) as in_file:
         in_file.readline()
         content = in_file.readlines()
         in_file.close()
@@ -33,7 +35,6 @@ def data_preprocess(file_name, write=False, plot=False, element_size=5e-4):
                 'x_pos': line[1], 'y_pos': line[2], 'z_pos': line[3],
                 'temperature': line[4], 'liquid_fraction': line[5]
             })
-    print(f'Number of node read: {len(node_data)}')
 
     # Write to file
     if write:
@@ -66,4 +67,10 @@ def data_preprocess(file_name, write=False, plot=False, element_size=5e-4):
         plt.savefig(file_name + ' XZ-mid-LF')
         plt.close()
 
+    # print(f'Process file {file_name} complete. Process time: {time.time()-time_start}s.')
     return node_data
+
+
+# for i in trange(600):
+#     time_step = "{:04d}".format(i+1)
+#     data_preprocess('FFF-' + time_step)
