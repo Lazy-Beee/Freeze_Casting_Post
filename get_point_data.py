@@ -69,9 +69,9 @@ class GetPointData:
 
         treat_pnum = min(16, len(active_node))
 
-        print('---Nearest node index and distance:')
-        for i in range(treat_pnum):
-            print(active_node[top_index[i]], distance[top_index[i]])
+        # print('---Nearest node index and distance:')
+        # for i in range(treat_pnum):
+        #     print(active_node[top_index[i]], distance[top_index[i]])
 
         tetrs = []
         for lp1 in range(0, treat_pnum):
@@ -90,51 +90,63 @@ class GetPointData:
                                           active_node[top_index[lp2]],
                                           active_node[top_index[lp3]],
                                           active_node[top_index[lp4]]])
-        print('---Number of closed tetra:', len(tetrs))
+        # print('---Number of closed tetra:', len(tetrs))
 
-        min_l = 100.
-        min_tetr = []
-        for nn in tetrs:
-            if nn[0] < min_l:
-                min_tetr = nn[1:]
-                min_l = nn[0]
+        min_ind = sorted(range(len(tetrs)), key=lambda i: tetrs[i][0], reverse=False)[0]
+        min_l = tetrs[min_ind][0]
+        min_tetr = tetrs[min_ind][1:]
 
-        print('---Tetra candidates (l less than 2*l_min)')
-        for nn in tetrs:
-            if nn[0] < 2 * min_l:
-                print("%.4f,%.4f,%.4f" % (nn[1][0]*1000, nn[1][1]*1000, nn[1][2]*1000), end='--- ')
-                print("%.4f,%.4f,%.4f" % (nn[2][0]*1000, nn[2][1]*1000, nn[2][2]*1000), end='--- ')
-                print("%.4f,%.4f,%.4f" % (nn[3][0]*1000, nn[3][1]*1000, nn[3][2]*1000), end='--- ')
-                print("%.4f,%.4f,%.4f" % (nn[4][0]*1000, nn[4][1]*1000, nn[4][2]*1000))
-                print(nn[5:])
-        print("min:", min_tetr, min_l)
+        # print('---Tetra candidates (l less than 1.5*l_min)')
+        # print("min:", min_tetr, min_l)
+        # for nn in tetrs:
+        #     if nn[0] < 1.5 * min_l:
+        #         dp1 = ((nn[1][0] - x_pos) * 1000, (nn[1][1] - y_pos) * 1000, (nn[1][2] - z_pos) * 1000)
+        #         dp2 = ((nn[2][0] - x_pos) * 1000, (nn[2][1] - y_pos) * 1000, (nn[2][2] - z_pos) * 1000)
+        #         dp3 = ((nn[3][0] - x_pos) * 1000, (nn[3][1] - y_pos) * 1000, (nn[3][2] - z_pos) * 1000)
+        #         dp4 = ((nn[4][0] - x_pos) * 1000, (nn[4][1] - y_pos) * 1000, (nn[4][2] - z_pos) * 1000)
+        #         print('\nP1: ' + "%.4f,%.4f,%.4f" % dp1)
+        #         print('P2: ' + "%.4f,%.4f,%.4f" % dp2)
+        #         print('P3: ' + "%.4f,%.4f,%.4f" % dp3)
+        #         print('P4: ' + "%.4f,%.4f,%.4f" % dp4)
+        #         print('Index:', nn[5:], 'Length:', nn[0])
 
+        # p1 = self.get_grid_point(active_node[top_index[0]])
+        # p2 = self.get_grid_point(active_node[top_index[1]])
+        # p3 = self.get_grid_point(active_node[top_index[2]])
+        # p4 = self.get_grid_point(active_node[top_index[3]])
+        # i1 = active_node[top_index[0]]
+        # i2 = active_node[top_index[1]]
+        # i3 = active_node[top_index[2]]
+        # i4 = active_node[top_index[3]]
+        # min_tetr = [p1, p2, p3, p4, i1, i2, i3, i4]
+
+        print('--------', min_tetr[-4:], end='')
         return min_tetr
 
-    def node_tet_avg(self, x, y, z, active_node, data_type):
+    def node_tet_avg(self, x, y, z, tetra_node, data_type, check=True):
         """Get tetrahedron average on point"""
         dst_p = [x, y, z]
-        [p1, p2, p3, p4, ind1, ind2, ind3, ind4] = self.get_tet_node(x, y, z, active_node)
+        [p1, p2, p3, p4, ind1, ind2, ind3, ind4] = tetra_node
 
         nodes = [p1, p2, p3, p4]
         values = []
         for ind in [ind1, ind2, ind3, ind4]:
             values.append(self.grid_data[ind][0][data_type])
 
-        return cell_average.tetrahedron_average(dst_p, nodes, values)[1]
+        return cell_average.tetrahedron_average(dst_p, nodes, values, check=check)
 
-    def gradient(self, x_pos, active_node, data_type):
+    def gradient(self, x_pos, tetra_node, data_type):
         """Compute gradient"""
-        x_high = self.node_tet_avg(x_pos + self.s_step, self.y_pos, self.z_pos, active_node, data_type)
-        x_low = self.node_tet_avg(x_pos - self.s_step, self.y_pos, self.z_pos, active_node, data_type)
+        x_high = self.node_tet_avg(x_pos + self.s_step, self.y_pos, self.z_pos, tetra_node, data_type, check=False)
+        x_low = self.node_tet_avg(x_pos - self.s_step, self.y_pos, self.z_pos, tetra_node, data_type, check=False)
         x_gradient = (x_high - x_low) / (2 * self.s_step)
 
-        y_high = self.node_tet_avg(x_pos, self.y_pos + self.s_step, self.z_pos, active_node, data_type)
-        y_low = self.node_tet_avg(x_pos, self.y_pos - self.s_step, self.z_pos, active_node, data_type)
+        y_high = self.node_tet_avg(x_pos, self.y_pos + self.s_step, self.z_pos, tetra_node, data_type, check=False)
+        y_low = self.node_tet_avg(x_pos, self.y_pos - self.s_step, self.z_pos, tetra_node, data_type, check=False)
         y_gradient = (y_high - y_low) / (2 * self.s_step)
 
-        z_high = self.node_tet_avg(x_pos, self.y_pos, self.z_pos + self.s_step, active_node, data_type,)
-        z_low = self.node_tet_avg(x_pos, self.y_pos, self.z_pos - self.s_step, active_node, data_type,)
+        z_high = self.node_tet_avg(x_pos, self.y_pos, self.z_pos + self.s_step, tetra_node, data_type, check=False)
+        z_low = self.node_tet_avg(x_pos, self.y_pos, self.z_pos - self.s_step, tetra_node, data_type, check=False)
         z_gradient = (z_high - z_low) / (2 * self.s_step)
 
         return x_gradient, y_gradient, z_gradient
@@ -169,20 +181,23 @@ class GetPointData:
         """Get data of specific point by spacial linear average of element nodes"""
         # find approximate range of x_pos in nodes
         active_node = self.get_active_node(x_pos)
+        tetra_node = self.get_tet_node(x_pos, self.y_pos, self.z_pos, active_node)
         # Liquid_fraction
-        if len(active_node) == 0:
-            liquid_fraction = 10
-        else:
-            liquid_fraction = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, active_node, 'liquid_fraction')
+        liquid_fraction = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'liquid_fraction')
+
+        # x = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'x_pos')
+        # y = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'y_pos')
+        # z = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'z_pos')
+        # return y - self.y_pos, self.gradient(x_pos, tetra_node, 'y_pos')
 
         if not info:
             # not ice front
-            return liquid_fraction, None
+            return liquid_fraction
         else:
             # get temperature and temperature gradient
-            temperature = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, active_node, 'temperature')
-            return [liquid_fraction, self.gradient(x_pos, active_node, 'liquid_fraction')], \
-                   [temperature, self.gradient(x_pos, active_node, 'temperature')]
+            temperature = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'temperature')
+            return [liquid_fraction, self.gradient(x_pos, tetra_node, 'liquid_fraction')], \
+                   [temperature, self.gradient(x_pos, tetra_node, 'temperature')]
 
 
 

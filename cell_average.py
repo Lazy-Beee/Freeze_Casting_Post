@@ -14,7 +14,7 @@ def dis_point_to_plane(point, plane):
     """Find distance (directional) form point to plane"""
     [x, y, z] = point
     [a, b, c, d] = plane
-    if abs(a*x + b*y + c*z + d) <= 1e-9:
+    if abs(a*x + b*y + c*z + d) == 0:
         return 0
     return (a*x+b*y+c*z+d)/np.linalg.norm([a, b, c])
 
@@ -33,20 +33,45 @@ def plane_intersection(p1, p2, plane):
     """Find intersection of plane and line"""
     d1 = dis_point_to_plane(p1, plane)
     d2 = dis_point_to_plane(p2, plane)
-    return p1 + (p2 - p1) * d1 / max(1e-9, (d1 - d2))
+
+    # print('\n---Plane Intersection')
+    # print('Point 1:', p1)
+    # print('Point 2:', p2)
+    # print('Plane:', plane)
+    # print('Distance 1:', d1)
+    # print('Distance 2:', d2)
+    # print('Intersection on face:', p1 + (p2 - p1) * d1 / (d1 - d2))
+    # print('---Plane Intersection END')
+
+    if d1 == d2:
+        print('Parallel line in finding plane intersection')
+    elif d2 == 0:
+        return p2
+    elif d1 == 0:
+        return p1
+    else:
+        return p1 + (p2 - p1) * d1 / (d1 - d2)
 
 
 def line_intersection(p1, p2, p3, p4):
     """Find intersection of line p1p2 and line p3p4"""
     d1 = dis_point_to_line(p1, p3, p4)
     d2 = dis_point_to_line(p2, p3, p4)
-    return p1 + (p2 - p1) * d1 / max(1e-9, (d1 - d2))
+    if d1 == d2:
+        print('Parallel line in finding line intersection')
+    elif d2 == 0:
+        return p2
+    elif d1 == 0:
+        return p1
+    else:
+        return p1 + (p2 - p1) * d1 / (d1 - d2)
 
 
 def check_dis(point, node, plane):
     """Check if the point is further away from the plane than the node"""
     dis_point = dis_point_to_plane(point, plane)
     dis_node = dis_point_to_plane(node, plane)
+    # print(dis_node, dis_point)
     if np.sign(dis_node) == np.sign(dis_point) and abs(dis_node) >= abs(dis_point):
         return True
     elif dis_point == 0:
@@ -66,7 +91,7 @@ def check_closure(point, p1, p2, p3, p4):
            check_dis(point, p3, f3) and check_dis(point, p4, f4)
 
 
-def tetrahedron_average(point, nodes, values):
+def tetrahedron_average(point, nodes, values, check=True):
     """Find point value from nodes of tetrahedron"""
     point = np.array(point)
     [p1, p2, p3, p4] = nodes
@@ -83,7 +108,7 @@ def tetrahedron_average(point, nodes, values):
         return True, values[3]
 
     # Check whether point is in tetrahedron
-    elif check_closure(point, p1, p2, p3, p4):
+    elif (not check) or check_closure(point, p1, p2, p3, p4):
         # Find face point on plane p2p3p4
         p_face = plane_intersection(p1, point, f1)
         # Find edge point on line p3p4
@@ -98,10 +123,20 @@ def tetrahedron_average(point, nodes, values):
         # Find value of body point
         weight_body = [1 / max(1e-9, point_dis(point, p_face)), 1 / max(1e-9, point_dis(point, p1))]
         value_body = np.average([value_face, values[0]], weights=weight_body)
-        return True, value_body
+
+        # print('\n---Tetra Average')
+        # print('Body point:', np.ndarray.tolist(point))
+        # print('Face point:', np.ndarray.tolist(p_face))
+        # print('Edge point:', np.ndarray.tolist(p_edge))
+        # print('Edge weight', weight_edge, '    Edge value', value_edge)
+        # print('Face weight', weight_face, '    Face value', value_face)
+        # print('Body weight', weight_body, '    Body value', value_body)
+        # print('---Tetra Average END')
+
+        return value_body
 
     else:
-        return False, None
+        return None
 
 
 def tetrahedron_v(p1, p2, p3, p4):
