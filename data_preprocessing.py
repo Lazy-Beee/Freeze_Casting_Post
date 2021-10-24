@@ -5,35 +5,38 @@ import os.path
 path = os.getcwd()
 
 
-def data_preprocess(file_name, write=False, plot=False, element_size=5e-4):
+def data_preprocess(file_names, write=False, plot=False, element_size=5e-4):
     time_start = time.time()
     node_data = {}
 
-    # Read file
-    with open(os.path.dirname(path) + f'\data\{file_name}') as in_file:
-        in_file.readline()
-        content = in_file.readlines()
-        in_file.close()
+    ind_num = 0
+    for file_name in file_names:
+        # Read file
+        with open(os.path.dirname(path) + f'\data\{file_name}') as in_file:
+            in_file.readline()
+            content = in_file.readlines()
+            in_file.close()
 
-    # Write into dictionary
-    for line in content:
-        line = line.split(' ')
-        line.pop()
-        while '' in line:
-            line.remove('')
+        # Write into dictionary
+        for line in content:
+            line = line.split(' ')
+            line.pop()
+            while '' in line:
+                line.remove('')
 
-        for n, number in enumerate(line):
-            if 'E' in number:
-                number.replace('E', 'e')
-            line[n] = float(number)
+            for n, number in enumerate(line):
+                if 'E' in number:
+                    number.replace('E', 'e')
+                line[n] = float(number)
 
-        if line[4] != 0:
-            node_data[int(line[0])] = []
-            node_data[int(line[0])].append({
-                'x_pos': line[1], 'y_pos': line[2], 'z_pos': line[3],
-                'temperature': line[4], 'liquid_fraction': line[5]
-            })
-    print(f'Number of node read: {len(node_data)}')
+            if line[4] != 0:
+                node_data[int(line[0]) + ind_num] = []
+                node_data[int(line[0]) + ind_num].append({
+                    'x_pos': line[1], 'y_pos': line[2], 'z_pos': line[3],
+                    'temperature': line[4], 'liquid_fraction': line[5]
+                })
+        ind_num = len(node_data)
+    print(f'Data read from {file_names}, number of node read: {len(node_data)}')
 
     # Write to file
     if write:

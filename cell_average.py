@@ -14,6 +14,8 @@ def dis_point_to_plane(point, plane):
     """Find distance (directional) form point to plane"""
     [x, y, z] = point
     [a, b, c, d] = plane
+    if abs(a*x + b*y + c*z + d) <= 1e-9:
+        return 0
     return (a*x+b*y+c*z+d)/np.linalg.norm([a, b, c])
 
 
@@ -108,6 +110,25 @@ def tetrahedron_v(p1, p2, p3, p4):
     dis = abs(dis_point_to_plane(p4, plane))
     triangle_s = np.linalg.norm(np.cross(p2 - p1, p3 - p1)) / 2.0
     return dis * triangle_s / 6.0
+
+
+def tetrahedron_s(p1, p2, p3, p4):
+    """Find volume of tetrahedron"""
+    triangle_s = np.linalg.norm(np.cross(p2 - p1, p3 - p1)) / 2.0
+    triangle_s += np.linalg.norm(np.cross(p2 - p1, p4 - p1)) / 2.0
+    triangle_s += np.linalg.norm(np.cross(p3 - p1, p4 - p1)) / 2.0
+    triangle_s += np.linalg.norm(np.cross(p2 - p3, p4 - p3)) / 2.0
+    return triangle_s
+
+
+def tetrahedron_l(p1, p2, p3, p4):
+    """Find volume of tetrahedron"""
+    points = [p1, p2, p3, p4]
+    l_sum = 0
+    for p1 in points:
+        for p2 in points:
+            l_sum += point_dis(p1, p2)
+    return l_sum
 
 
 def cuboid_xy_face_average(cube_xyz, point_xyz, values):
