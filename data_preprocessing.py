@@ -36,7 +36,7 @@ def data_preprocess(file_names, write=False, plot=False, element_size=5e-4):
                     'temperature': line[4], 'liquid_fraction': line[5]
                 })
         ind_num = len(node_data)
-    print(f'Data read from {file_names}, number of node read: {len(node_data)}')
+    # print(f'Data read from {file_names}, number of node read: {len(node_data)}')
 
     # Write to file
     if write:

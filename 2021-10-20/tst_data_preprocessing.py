@@ -4,13 +4,13 @@ import data_preprocessing as dpp
 import os.path
 path = os.getcwd()
 
-file_name = 'FFF-0100'
+FILE_NAME = 'FFF-0100'
 strs = ['x_pos', 'y_pos', 'z_pos', 'temperature', 'liquid_fraction']
 
 #get file original info
 
 # Read file
-with open(os.path.dirname(path) + f'\data\{file_name}') as in_file:
+with open(os.path.dirname(path) + f'\data\{FILE_NAME}') as in_file:
     print("1st line:", in_file.readline())
     print("2nd line:", in_file.readline())
     print("3rd line:", in_file.readline())    
@@ -20,7 +20,7 @@ with open(os.path.dirname(path) + f'\data\{file_name}') as in_file:
     print("total data items num=", src_items_num)
     in_file.close()
 
-node_data = dpp.data_preprocess(file_name)
+node_data = dpp.data_preprocess(FILE_NAME)
 print("node_data len=", len(node_data))
 print("1:",node_data[1])
 print("2:",node_data[2])

@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import os.path
 from data_preprocessing import data_preprocess
 import cell_average
@@ -92,9 +91,12 @@ class GetPointData:
                                           active_node[top_index[lp4]]])
         # print('---Number of closed tetra:', len(tetrs))
 
+        if len(tetrs) == 0:
+            print('No legal tetrahedron found (get_point_data: get_tet_node)')
+
         min_ind = sorted(range(len(tetrs)), key=lambda i: tetrs[i][0], reverse=False)[0]
-        min_l = tetrs[min_ind][0]
         min_tetr = tetrs[min_ind][1:]
+        # min_l = tetrs[min_ind][0]
 
         # print('---Tetra candidates (l less than 1.5*l_min)')
         # print("min:", min_tetr, min_l)
@@ -120,7 +122,7 @@ class GetPointData:
         # i4 = active_node[top_index[3]]
         # min_tetr = [p1, p2, p3, p4, i1, i2, i3, i4]
 
-        print('--------', min_tetr[-4:], end='')
+        # print('--------', min_tetr[-4:], end='')
         return min_tetr
 
     def node_tet_avg(self, x, y, z, tetra_node, data_type, check=True):
@@ -177,13 +179,14 @@ class GetPointData:
             j += 1
         return active_node
 
-    def get_ice_front_data(self, x_pos, info=False):
+    def get_point_data(self, x_pos, info=False):
         """Get data of specific point by spacial linear average of element nodes"""
         # find approximate range of x_pos in nodes
         active_node = self.get_active_node(x_pos)
         tetra_node = self.get_tet_node(x_pos, self.y_pos, self.z_pos, active_node)
         # Liquid_fraction
         liquid_fraction = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'liquid_fraction')
+        temperature = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'temperature')
 
         # x = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'x_pos')
         # y = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'y_pos')
@@ -192,13 +195,8 @@ class GetPointData:
 
         if not info:
             # not ice front
-            return liquid_fraction
+            return liquid_fraction, temperature
         else:
             # get temperature and temperature gradient
-            temperature = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'temperature')
             return [liquid_fraction, self.gradient(x_pos, tetra_node, 'liquid_fraction')], \
                    [temperature, self.gradient(x_pos, tetra_node, 'temperature')]
-
-
-
-
