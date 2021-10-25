@@ -19,4 +19,18 @@ print('\n-----YZ search test-----')
 #     yz = [-1e-3 * (i - 4), -4.5e-3]
 #     print(yz, ifs.yz_search_temp(yz))
 
+for i in range(7):
+    yz = [0, -1e-3 * (i + 1)]
+    a = ifs.yz_search(yz)
+    print('---', yz, a[0])
+    print(a[1][0])
+    print(a[1][1])
+
+for i in range(9):
+    yz = [-1e-3 * (i - 4), -4.5e-3]
+    a = ifs.yz_search(yz)
+    print('---', yz, a[0])
+    print(a[1][0])
+    print(a[1][1])
+
 print('-----YZ search test END-----')
