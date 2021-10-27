@@ -153,6 +153,32 @@ class GetPointData:
 
         return x_gradient, y_gradient, z_gradient
 
+    def get_neighbor_cent(self, x_pos, active_node):
+        """Find cell containing the point and all neighboring cells"""
+
+        return None
+
+    def least_square_gradient(self, cell_cent, surr_cent):
+        """Compute gradient at cell centroid using least squares method"""
+        geo_matrix = []
+        diff_matrix = []
+
+        cent_x = self.grid_data[cell_cent][0]['x_pos']
+        cent_y = self.grid_data[cell_cent][0]['y_pos']
+        cent_z = self.grid_data[cell_cent][0]['z_pos']
+        cent_temp = self.grid_data[cell_cent][0]['temperature']
+
+        for neighbor in surr_cent:
+            geo_matrix.append([
+                self.grid_data[neighbor][0]['x_pos'] - cent_x,
+                self.grid_data[neighbor][0]['y_pos'] - cent_y,
+                self.grid_data[neighbor][0]['z_pos'] - cent_z
+            ])
+            diff_matrix.append(self.grid_data[neighbor][0]['temperature'] - cent_temp)
+
+        cent_grad = np.linalg.lstsq(geo_matrix, diff_matrix)[0]
+        return cent_grad
+
     def get_active_node(self, x_pos):
         anchor_node = self.node_binary_search(x_pos)
         active_node = []

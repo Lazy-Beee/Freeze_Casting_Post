@@ -44,7 +44,7 @@ def plane_intersection(p1, p2, plane):
     # print('---Plane Intersection END')
 
     if d1 == d2:
-        print('Parallel line in finding plane intersection')
+        print('Parallel line in finding plane intersection (cell_average: plane_intersection)')
     elif d2 == 0:
         return p2
     elif d1 == 0:

@@ -8,7 +8,6 @@ path = os.getcwd()
 def data_preprocess(file_names, write=False, plot=False, element_size=5e-4):
     time_start = time.time()
     node_data = {}
-
     ind_num = 0
     for file_name in file_names:
         # Read file

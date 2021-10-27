@@ -42,7 +42,7 @@ def yz_list_generator(y_num, z_num, y_lim=(-4.5e-3, 4.5e-3), z_lim=(-8.5e-3, -0.
     return y_list, z_list
 
 
-def yz_search(yz, x_range=(), data_type='temp'):
+def yz_search(yz, x_range=(), data_type='temp', info=True):
     """Search ice front on YZ line using transition temperature"""
     global FILE_NAME, ELEM_SIZE
     [y, z] = yz
@@ -89,7 +89,10 @@ def yz_search(yz, x_range=(), data_type='temp'):
         print('---WARNING---Incorrect search data type (ice_front_search: yz_search)')
         quit()
 
-    return [mid, y, z], yz_domain.get_point_data(mid, info=True)
+    if info:
+        return [mid, y, z], yz_domain.get_point_data(mid, info=True)
+    else:
+        return [mid, y, z]
 
 
 def grid_search(y_list, z_list, data_type='temp', write=False):
