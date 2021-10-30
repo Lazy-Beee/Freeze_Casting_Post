@@ -153,11 +153,48 @@ class GetPointData:
 
         return x_gradient, y_gradient, z_gradient
 
-    # def get_neighbor_cent(self, x_pos, active_node):
-    #     """Find cell containing the point and all neighboring cells"""
-    #
-    #
-    #     return cell_cent, surr_cent
+    def get_neighbor_cent(self, x_pos, active_node):
+        """Find cell containing the point and all neighboring cells"""
+        distance = []
+        dst_p = np.array([x_pos, self.y_pos, self.z_pos])
+        for index in active_node:
+            tmp_point = np.array([self.grid_data[index][0]['x_pos'],
+                                  self.grid_data[index][0]['y_pos'],
+                                  self.grid_data[index][0]['z_pos']])
+            distance.append(cell_average.point_dis(dst_p, tmp_point))
+        min_distance = min(distance)
+        cell_cent = active_node[distance.index(min_distance)]
+
+        distance = []
+        dst_p = np.array([self.grid_data[cell_cent][0]['x_pos'],
+                          self.grid_data[cell_cent][0]['y_pos'],
+                          self.grid_data[cell_cent][0]['z_pos']])
+        for index in active_node:
+            tmp_point = np.array([self.grid_data[index][0]['x_pos'],
+                                  self.grid_data[index][0]['y_pos'],
+                                  self.grid_data[index][0]['z_pos']])
+            distance.append(cell_average.point_dis(dst_p, tmp_point))
+        top_index = sorted(range(len(distance)), key=lambda i: distance[i], reverse=False)
+        surr_cent = []
+        for ind in top_index[1:1+4]:
+            surr_cent.append(active_node[ind])
+
+        # cent_p = ((self.grid_data[cell_cent][0]['x_pos'] * 1000,
+        #        self.grid_data[cell_cent][0]['y_pos'] * 1000,
+        #        self.grid_data[cell_cent][0]['z_pos'] * 1000))
+        # print(f'Centroid P: ' + "%.4f,%.4f,%.4f" % cent_p)
+        # for i in range(4):
+        #     dp = ((self.grid_data[surr_cent[i]][0]['x_pos'] * 1000,
+        #            self.grid_data[surr_cent[i]][0]['y_pos'] * 1000,
+        #            self.grid_data[surr_cent[i]][0]['z_pos'] * 1000))
+        #     print(f'Neighbor P{i+1}: ' + "%.4f,%.4f,%.4f" % dp)
+        # for i in range(4):
+        #     dp = (self.grid_data[surr_cent[i]][0]['x_pos'] * 1000 - cent_p[0],
+        #           self.grid_data[surr_cent[i]][0]['y_pos'] * 1000 - cent_p[1],
+        #           self.grid_data[surr_cent[i]][0]['z_pos'] * 1000 - cent_p[2])
+        #     print(f'Displacement P{i+1}: ' + "%.4f,%.4f,%.4f" % dp)
+
+        return cell_cent, surr_cent
 
     def least_square_gradient(self, cell_cent, surr_cent):
         """Compute gradient at cell centroid using least squares method"""
@@ -177,8 +214,8 @@ class GetPointData:
             ])
             diff_matrix.append(self.grid_data[neighbor][0]['temperature'] - cent_temp)
 
-        cent_grad = np.linalg.lstsq(geo_matrix, diff_matrix)[0]
-        return cent_grad
+        cent_grad = np.linalg.lstsq(geo_matrix, diff_matrix, rcond=None)[0]
+        return cent_grad[0], cent_grad[1], cent_grad[2]
 
     def get_active_node(self, x_pos):
         anchor_node = self.node_binary_search(x_pos)
@@ -235,4 +272,6 @@ class GetPointData:
                 return None, temperature
             else:
                 # get temperature and temperature gradient
-                return None, [temperature, self.gradient(x_pos, tetra_node, 'temperature')]
+                cell_cent, surr_cent = self.get_neighbor_cent(x_pos, active_node)
+                temp_gradient = self.least_square_gradient(cell_cent, surr_cent)
+                return None, [temperature, temp_gradient]
