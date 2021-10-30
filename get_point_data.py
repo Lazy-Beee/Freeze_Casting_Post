@@ -153,10 +153,11 @@ class GetPointData:
 
         return x_gradient, y_gradient, z_gradient
 
-    def get_neighbor_cent(self, x_pos, active_node):
-        """Find cell containing the point and all neighboring cells"""
-
-        return None
+    # def get_neighbor_cent(self, x_pos, active_node):
+    #     """Find cell containing the point and all neighboring cells"""
+    #
+    #
+    #     return cell_cent, surr_cent
 
     def least_square_gradient(self, cell_cent, surr_cent):
         """Compute gradient at cell centroid using least squares method"""
@@ -205,13 +206,14 @@ class GetPointData:
             j += 1
         return active_node
 
-    def get_point_data(self, x_pos, info=False):
+    def get_point_data(self, x_pos, info=False, lf=False):
         """Get data of specific point by spacial linear average of element nodes"""
         # find approximate range of x_pos in nodes
         active_node = self.get_active_node(x_pos)
         tetra_node = self.get_tet_node(x_pos, self.y_pos, self.z_pos, active_node)
         # Liquid_fraction
-        liquid_fraction = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'liquid_fraction')
+        if lf:
+            liquid_fraction = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'liquid_fraction')
         temperature = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'temperature')
 
         # x = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'x_pos')
@@ -219,10 +221,18 @@ class GetPointData:
         # z = self.node_tet_avg(x_pos, self.y_pos, self.z_pos, tetra_node, 'z_pos')
         # return y - self.y_pos, self.gradient(x_pos, tetra_node, 'y_pos')
 
-        if not info:
-            # not ice front
-            return liquid_fraction, temperature
+        if lf:
+            if not info:
+                # not ice front
+                return liquid_fraction, temperature
+            else:
+                # get temperature and temperature gradient
+                return [liquid_fraction, self.gradient(x_pos, tetra_node, 'liquid_fraction')], \
+                       [temperature, self.gradient(x_pos, tetra_node, 'temperature')]
         else:
-            # get temperature and temperature gradient
-            return [liquid_fraction, self.gradient(x_pos, tetra_node, 'liquid_fraction')], \
-                   [temperature, self.gradient(x_pos, tetra_node, 'temperature')]
+            if not info:
+                # not ice front
+                return None, temperature
+            else:
+                # get temperature and temperature gradient
+                return None, [temperature, self.gradient(x_pos, tetra_node, 'temperature')]

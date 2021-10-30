@@ -1,42 +1,51 @@
-import ice_front_search as ifs
 import numpy as np
+import ice_front_search as ifs
+from tqdm import trange
 import matplotlib.pyplot as plt
 
 
 print('-----Quasi Steady State Determination-----')
 
-frame_num = 3
-frame_list = [int(600 / frame_num * (i+1)) for i in range(frame_num)]
-frame_list.insert(0, 1)
-print('Frame List:', frame_list)
 
-x = []
-y = 0
-z_list = [-2.25e-3, -4.5e-3, -6.75e-3]
-finger_vel = 5e-3  # mm/s
+def plot(end_time, y):
+    frame_list = np.logspace(np.log10(20), np.log10(end_time), dtype=int, num=30)
+    frame_list = sorted(set(frame_list))
+    frame_num = len(frame_list)
 
-for i in range(frame_num):
-    ifs.FILE_NAME = ['center-' + str(frame_list[i]).zfill(4)]
-    ifs.FRAME_TIME = frame_list[i]
-    print(ifs.FILE_NAME)
-    x_frame = []
-    for z in z_list:
-        temp_y0 = ifs.yz_search((y, z), info=False)
-        x_frame.append(ifs.yz_search((y, z), info=False)[0] - frame_list[i] * finger_vel)  # mm
-    x.append(x_frame)
+    x = []
+    z_list = [-1e-3, -4.5e-3, -8e-3]
+    finger_vel = 5e-6  # mm/s
 
-fig, ax = plt.figure()
+    for i in range(frame_num):
+        ifs.FILE_NAME = ['center-' + str(frame_list[i]).zfill(4)]
+        ifs.FRAME_TIME = frame_list[i]
+        x_frame = []
+        for z in z_list:
+            temp_y0 = ifs.yz_search((y, z), info=False)
+            x_frame.append(ifs.yz_search((y, z), info=False)[0] - frame_list[i] * finger_vel)  # mm
+        x.append(x_frame)
 
-color = ['tab:blue', 'tab:red', 'tab:']
-ax.set_xlabel('Relative X Position (mm)')
-ax.set_ylabel('Z Position (mm)')
-for i, z in enumerate(z_list):
-    ax.plot(frame_list, x[i], label=f'z = {z}mm')
+    # frame_list.insert(0, 0)
+    # x.insert(0, [0, 0, 0])
 
-plt.title('90deg/323.15K hot-finger, y = 1.75 mm')
-fig.tight_layout()
+    plt.figure()
 
-plt.savefig('images/if_trajectory.png')
-plt.close()
+    color = ['tab:blue', 'tab:red', 'tab:']
+    plt.xlabel('Flow Time (s)')
+    plt.ylabel('Relative X Position (mm)')
+    for i, z in enumerate(z_list):
+        plt.plot(frame_list, [x[j][i] for j in range(frame_num)], '.-', label=f'z={z*1000}mm')
 
+    plt.title(f'90deg/323.15K hot-finger, 0.5mm mesh, y={y*1000}mm')
+    plt.legend(loc='lower right')
+    # plt.tight_layout()
+
+    plt.savefig(f'images/2_if_trajectory_0.5mesh_y{y}_{end_time}.png')
+    plt.close()
+
+
+plot(600, -1.5e-3)
+plot(600, 4.5e-3)
+# plot(200, 0.0)
+# plot(200, 3.5e-3)
 print('-----Quasi Steady State END-----')

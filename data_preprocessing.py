@@ -30,10 +30,18 @@ def data_preprocess(file_names, write=False, plot=False, element_size=5e-4):
 
             if line[4] != 0:
                 node_data[int(line[0]) + ind_num] = []
-                node_data[int(line[0]) + ind_num].append({
-                    'x_pos': line[1], 'y_pos': line[2], 'z_pos': line[3],
-                    'temperature': line[4], 'liquid_fraction': line[5]
-                })
+                if len(line) == 6:
+                    node_data[int(line[0]) + ind_num].append({
+                        'x_pos': line[1], 'y_pos': line[2], 'z_pos': line[3],
+                        'temperature': line[4], 'liquid_fraction': line[5]
+                    })
+                elif len(line) == 5:
+                    node_data[int(line[0]) + ind_num].append({
+                        'x_pos': line[1], 'y_pos': line[2], 'z_pos': line[3],
+                        'temperature': line[4]
+                    })
+                else:
+                    print('---WARNING--- Missing information in data (data_preprocess)')
         ind_num = len(node_data)
     # print(f'Data read from {file_names}, number of node read: {len(node_data)}')
 

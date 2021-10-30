@@ -25,7 +25,7 @@ def finger_location(yz):
         quit()
 
     if z <= -4.5e-3 - ELEM_SIZE or y <= -1.5e-3 - ELEM_SIZE:
-        return 30e-3
+        return 25e-3
     else:
         return (-z) / np.tan(FINGER_ANGLE / 2) + 3e-3 + FRAME_TIME * FINGER_VEL - ELEM_SIZE
 
@@ -44,7 +44,7 @@ def yz_list_generator(y_num, z_num, y_lim=(-4.5e-3, 4.5e-3), z_lim=(-8.5e-3, -0.
 
 def yz_search(yz, x_range=(), data_type='temp', info=True):
     """Search ice front on YZ line using transition temperature"""
-    global FILE_NAME, ELEM_SIZE
+    global FILE_NAME, ELEM_SIZE, FRAME_TIME
     [y, z] = yz
     yz_domain = gpd.GetPointData(FILE_NAME, yz, ELEM_SIZE)
 
@@ -68,7 +68,7 @@ def yz_search(yz, x_range=(), data_type='temp', info=True):
                 else:
                     low = mid
             else:
-                print('---WARNING---Binary search failed (ice_front_search: yz_search_temp)', yz, mid_temp)
+                print('---WARNING---Binary search failed (ice_front_search: yz_search_temp)', FRAME_TIME, yz, mid_temp)
                 break
 
     elif data_type == 'lf':
@@ -83,7 +83,7 @@ def yz_search(yz, x_range=(), data_type='temp', info=True):
                 else:
                     low = mid
             else:
-                print('---WARNING---Binary search failed (ice_front_search: yz_search_lf)', yz, mid_lf)
+                print('---WARNING---Binary search failed (ice_front_search: yz_search_lf)', FRAME_TIME, yz, mid_lf)
                 break
     else:
         print('---WARNING---Incorrect search data type (ice_front_search: yz_search)')
