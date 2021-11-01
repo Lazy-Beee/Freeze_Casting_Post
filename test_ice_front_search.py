@@ -47,40 +47,40 @@ from matplotlib_scalebar.scalebar import ScaleBar
 def y_plane_search():
     print('\n-----Y Plane search test-----')
     ifs.ELEM_SIZE = 0.3e-3
-    ifs.FRAME_TIME = 250
-    ifs.FILE_NAME = ['0.3mesh/center-250.0']
     n = 30
-    y_list, z_list = ifs.yz_list_generator(n, n)
-    temp_y0 = ifs.grid_search([0], z_list, data_type='temp')
-    # lf_y0 = ifs.grid_search([0], z_list, data_type='lf')
+    frames = [50, 100, 150, 200, 250]
+    x_if_pos, z_if_pos = [], []
 
-    temp_x, temp_z = [], []
-    # lf_x, lf_z = [], []
-    for key in temp_y0:
-        temp_x.append(temp_y0[key]['position'][0] * 1000)
-        temp_z.append(temp_y0[key]['position'][2] * 1000)
-        # lf_x.append(lf_y0[key]['position'][0] * 1000)
-        # lf_z.append(lf_y0[key]['position'][2] * 1000)
-        # print(temp_y0[key]['position'])
+    for frame_time in frames:
+        ifs.ELEM_SIZE = 0.3e-3
+        ifs.FRAME_TIME = frame_time
+        ifs.FILE_NAME = [f'0.3mesh/center-{frame_time}.0']
+        y_list, z_list = ifs.yz_list_generator(n, n)
+        temp_y0 = ifs.grid_search([0], z_list, data_type='temp')
 
-    plt.figure(figsize=(5, 7.5))
+        temp_x, temp_z = [], []
+        for key in temp_y0:
+            temp_x.append(temp_y0[key]['position'][0] * 1000)
+            temp_z.append(temp_y0[key]['position'][2] * 1000)
+        x_if_pos.append(temp_x)
+        z_if_pos.append(temp_z)
+
+    # Plot
+    plt.figure(figsize=(7.5, 7.5))
 
     plt.xlim(10, 3)
     plt.xlabel('X Position (mm)')
     plt.ylabel('Z Position (mm)')
-    plt.plot(temp_x, temp_z)
-    # color1 = 'tab:blue'
-    # color2 = 'tab:red'
-    # plt.plot(temp_x, temp_z, color=color2, label='Temperature')
-    # plt.plot(lf_x, lf_z, color=color1, label='Liquid Fraction')
-    # plt.legend(loc="upper left")
+    for i, frame_time in enumerate(frames):
+        plt.plot(x_if_pos[i], z_if_pos[i], label=f'time={frame_time}s')
+    plt.legend(loc="upper left")
 
     plt.axis('equal')
     plt.title('Ice Front Position on XZ Mid-plane'
-              '\n90deg/323.15K hot-finger, y = 0 mm, t = 250s')
+              '\n90deg/323.15K hot-finger, y = 0 mm')
     plt.tight_layout()
 
-    plt.savefig('images/y=0 ice_front temp 30_points.png', bbox_inches='tight')
+    plt.savefig('images/y=0 ice_front multi.png', bbox_inches='tight')
     plt.close()
 
     print('-----Y Plane search test END-----')
@@ -124,11 +124,11 @@ def z_plane_search():
 
 def y_plane_gradient():
     print('\n-----Y Plane gradient test-----')
-    ifs.ELEM_SIZE = 0.3e-3
+    ifs.ELEM_SIZE = 0.2e-3
     ifs.FRAME_TIME = 250
-    ifs.FILE_NAME = ['0.3mesh/center-250.0']
+    ifs.FILE_NAME = ['0.2mesh/center-250.0']
 
-    n = 30
+    n = 40
     y_list, z_list = ifs.yz_list_generator(n, n)
     temp_y0 = ifs.grid_search([0], z_list, data_type='temp')
 
@@ -176,11 +176,11 @@ def y_plane_gradient():
               '\n90deg/323.15K hot-finger, y = 0 mm, t = 250s')
     plt.tight_layout()
 
-    plt.savefig('images/y0_if_grad.png')
+    plt.savefig('images/y0_if_grad_2ElemSize.png')
     plt.close()
 
     print('-----Y Plane gradient test END-----')
 
 
-y_plane_search()
-# y_plane_gradient()
+# y_plane_search()
+y_plane_gradient()

@@ -25,7 +25,7 @@ def finger_location(yz):
         quit()
 
     if z <= -4.5e-3 - ELEM_SIZE or y <= -1.5e-3 - ELEM_SIZE:
-        return 25e-3
+        return 10e-3 + FRAME_TIME * FINGER_VEL
     else:
         return (-z) / np.tan(FINGER_ANGLE / 2) + 3e-3 + FRAME_TIME * FINGER_VEL - ELEM_SIZE
 

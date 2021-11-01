@@ -153,7 +153,7 @@ class GetPointData:
 
         return x_gradient, y_gradient, z_gradient
 
-    def get_neighbor_cent(self, x_pos, active_node):
+    def get_neighbor_cent(self, x_pos, active_node, closest_neighbor=False):
         """Find cell containing the point and all neighboring cells"""
         distance = []
         dst_p = np.array([x_pos, self.y_pos, self.z_pos])
@@ -165,19 +165,32 @@ class GetPointData:
         min_distance = min(distance)
         cell_cent = active_node[distance.index(min_distance)]
 
-        distance = []
-        dst_p = np.array([self.grid_data[cell_cent][0]['x_pos'],
-                          self.grid_data[cell_cent][0]['y_pos'],
-                          self.grid_data[cell_cent][0]['z_pos']])
-        for index in active_node:
-            tmp_point = np.array([self.grid_data[index][0]['x_pos'],
-                                  self.grid_data[index][0]['y_pos'],
-                                  self.grid_data[index][0]['z_pos']])
-            distance.append(cell_average.point_dis(dst_p, tmp_point))
-        top_index = sorted(range(len(distance)), key=lambda i: distance[i], reverse=False)
-        surr_cent = []
-        for ind in top_index[1:1+4]:
-            surr_cent.append(active_node[ind])
+        if closest_neighbor:
+            distance = []
+            dst_p = np.array([self.grid_data[cell_cent][0]['x_pos'],
+                              self.grid_data[cell_cent][0]['y_pos'],
+                              self.grid_data[cell_cent][0]['z_pos']])
+            for index in active_node:
+                tmp_point = np.array([self.grid_data[index][0]['x_pos'],
+                                      self.grid_data[index][0]['y_pos'],
+                                      self.grid_data[index][0]['z_pos']])
+                distance.append(cell_average.point_dis(dst_p, tmp_point))
+            top_index = sorted(range(len(distance)), key=lambda i: distance[i], reverse=False)
+            surr_cent = []
+            for ind in top_index[1:1+4]:
+                surr_cent.append(active_node[ind])
+        else:
+            surr_cent = []
+            dst_p = np.array([self.grid_data[cell_cent][0]['x_pos'],
+                              self.grid_data[cell_cent][0]['y_pos'],
+                              self.grid_data[cell_cent][0]['z_pos']])
+            for index in active_node:
+                tmp_point = np.array([self.grid_data[index][0]['x_pos'],
+                                      self.grid_data[index][0]['y_pos'],
+                                      self.grid_data[index][0]['z_pos']])
+                if cell_average.point_dis(dst_p, tmp_point) <= self.elem_size * 2:
+                    surr_cent.append(index)
+            # print(len(surr_cent))
 
         # cent_p = ((self.grid_data[cell_cent][0]['x_pos'] * 1000,
         #        self.grid_data[cell_cent][0]['y_pos'] * 1000,
@@ -196,7 +209,7 @@ class GetPointData:
 
         return cell_cent, surr_cent
 
-    def least_square_gradient(self, cell_cent, surr_cent):
+    def least_square_gradient(self, cell_cent, surr_cent,data_type='temperature'):
         """Compute gradient at cell centroid using least squares method"""
         geo_matrix = []
         diff_matrix = []
@@ -204,7 +217,7 @@ class GetPointData:
         cent_x = self.grid_data[cell_cent][0]['x_pos']
         cent_y = self.grid_data[cell_cent][0]['y_pos']
         cent_z = self.grid_data[cell_cent][0]['z_pos']
-        cent_temp = self.grid_data[cell_cent][0]['temperature']
+        cent_val = self.grid_data[cell_cent][0][data_type]
 
         for neighbor in surr_cent:
             geo_matrix.append([
@@ -212,7 +225,7 @@ class GetPointData:
                 self.grid_data[neighbor][0]['y_pos'] - cent_y,
                 self.grid_data[neighbor][0]['z_pos'] - cent_z
             ])
-            diff_matrix.append(self.grid_data[neighbor][0]['temperature'] - cent_temp)
+            diff_matrix.append(self.grid_data[neighbor][0][data_type] - cent_val)
 
         cent_grad = np.linalg.lstsq(geo_matrix, diff_matrix, rcond=None)[0]
         return cent_grad[0], cent_grad[1], cent_grad[2]

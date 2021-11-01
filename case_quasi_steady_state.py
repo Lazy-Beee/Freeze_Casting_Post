@@ -24,7 +24,7 @@ def plot(end_time, y):
         x_frame = []
         for z in z_list:
             # temp_y0 = ifs.yz_search((y, z), info=False)
-            x_frame.append(ifs.yz_search((y, z), info=False)[0] - frame_list[i] * finger_vel - 3)
+            x_frame.append(ifs.yz_search((y, z), info=False)[0] - frame_list[i] * finger_vel - 3e-3)
         x.append(x_frame)
 
     vel_frame_list, vel_x_list = [], []
