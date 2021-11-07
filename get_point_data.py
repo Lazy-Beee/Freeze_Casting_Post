@@ -92,8 +92,17 @@ class GetPointData:
         # print('---Number of closed tetra:', len(tetrs))
 
         if len(tetrs) == 0:
-            print('No legal tetrahedron found (get_point_data: get_tet_node)')
-
+            print('No legal tetrahedron found (get_point_data: get_tet_node). Location:', (x_pos, y_pos, z_pos), self.file_name)
+            return [
+                self.get_grid_point(active_node[top_index[0]]),
+                self.get_grid_point(active_node[top_index[1]]),
+                self.get_grid_point(active_node[top_index[2]]),
+                self.get_grid_point(active_node[top_index[3]]),
+                active_node[top_index[0]],
+                active_node[top_index[1]],
+                active_node[top_index[2]],
+                active_node[top_index[3]]
+            ]
         min_ind = sorted(range(len(tetrs)), key=lambda i: tetrs[i][0], reverse=False)[0]
         min_tetr = tetrs[min_ind][1:]
         # min_l = tetrs[min_ind][0]
@@ -125,7 +134,7 @@ class GetPointData:
         # print('--------', min_tetr[-4:], end='')
         return min_tetr
 
-    def node_tet_avg(self, x, y, z, tetra_node, data_type, check=True):
+    def node_tet_avg(self, x, y, z, tetra_node, data_type, check=False):
         """Get tetrahedron average on point"""
         dst_p = [x, y, z]
         [p1, p2, p3, p4, ind1, ind2, ind3, ind4] = tetra_node

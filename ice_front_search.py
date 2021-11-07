@@ -68,7 +68,7 @@ def yz_search(yz, x_range=(), data_type='temp', info=True):
                 else:
                     low = mid
             else:
-                print('---WARNING---Binary search failed (ice_front_search: yz_search_temp)', FRAME_TIME, yz, mid_temp)
+                # print('---WARNING---Binary search failed (ice_front_search: yz_search_temp)', FRAME_TIME, yz, mid_temp)
                 break
 
     elif data_type == 'lf':

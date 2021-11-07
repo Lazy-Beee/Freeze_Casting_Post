@@ -91,7 +91,7 @@ def check_closure(point, p1, p2, p3, p4):
            check_dis(point, p3, f3) and check_dis(point, p4, f4)
 
 
-def tetrahedron_average(point, nodes, values, check=True):
+def tetrahedron_average(point, nodes, values, check=False):
     """Find point value from nodes of tetrahedron"""
     point = np.array(point)
     [p1, p2, p3, p4] = nodes
