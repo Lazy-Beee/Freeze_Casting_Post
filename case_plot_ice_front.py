@@ -44,14 +44,17 @@ def plot_pos(ice_front, title, fig_name, vel=True):
         vel_frame_list, vel_x_list = [], []
         for i in range(len(x_list) - 1):
             vel_frame_list.append(np.average(frame_list[i:i + 2]))
-            vel_x_list.append([(x_list[i + 1][j] - x_list[i][j]) / vel_frame_list[i] for j in range(len(z_list))])
+            vel_x_list.append(
+                [(x_list[i + 1][j] - x_list[i][j]) / (frame_list[i+1] - frame_list[i])
+                 for j in range(len(z_list))]
+            )
 
         plt.figure()
         plt.xlabel('Flow Time (s)')
         plt.ylabel('Ice Front Velocity (\u03BCm/s)')
         for i, z in enumerate(z_list):
             plt.plot(vel_frame_list, [vel_x_list[j][i] * 1e6 for j in range(len(x_list) - 1)],
-                     '-', label=f'z={z * 1000}mm')
+                     '-', label=f'z={z * 1000}mm, avg_vel={np.average(vel_x_list[:][i])* 1e6}\u03BCm/s')
         plt.title(title[1])
         # plt.xlim([0, 50])
         plt.legend(loc='upper right')
@@ -60,14 +63,14 @@ def plot_pos(ice_front, title, fig_name, vel=True):
         plt.close()
 
 title = [
-    f'X Position of Ice Front\n90deg/323.15K hot-finger vel=15\u03BCm/s, y=4.5mm',
-    f'X Velocity of Ice Front\n90deg/323.15K hot-finger vel=15\u03BCm/s, y=4.5mm',
+    f'X Position of Ice Front\n90deg/323.15K hot-finger vel=5\u03BCm/s, y=4.5mm',
+    f'X Velocity of Ice Front\n90deg/323.15K hot-finger vel=5\u03BCm/s, y=4.5mm',
 ]
 fig_name = [
-    os.path.dirname(path) + f'/images/11-06-2021/90deg-15vel-video-700/x position',
-    os.path.dirname(path) + f'/images/11-06-2021/90deg-15vel-video-700/x velocity'
+    os.path.dirname(path) + f'/images/11-06-2021/90deg-5vel-video-2000/x position',
+    os.path.dirname(path) + f'/images/11-06-2021/90deg-5vel-video-2000/x velocity'
 ]
-file_name = os.path.dirname(path) + f'/images/11-06-2021/90deg-15vel-video-700/data.txt'
+file_name = os.path.dirname(path) + f'/images/11-06-2021/90deg-5vel-video-2000/data.txt'
 
 ice_front = read_ice_front(file_name)
 plot_pos(ice_front, title, fig_name)

@@ -9,7 +9,7 @@ path = os.getcwd()
 
 """Global Variables"""
 ELEM_SIZE = 5e-4
-FILE_NAME = ['center-0300', 'node-0300']
+FILE_NAME = []
 FRAME_TIME = 300
 FINGER_ANGLE = 90 * np.pi / 180
 FINGER_VEL = 5e-6
@@ -20,7 +20,7 @@ def finger_location(yz):
     global FINGER_ANGLE, FINGER_VEL, FRAME_TIME
     [y, z] = yz
 
-    if (not -5e-3 <= y <= 5e-3) or (not -9e-3 <= z <= 0):
+    if (not -5e-3 <= y <= 5e-3) or (not -10e-3 <= z <= 0):
         print('---WARNING---YZ position outside of domain (ice_front_search: finger_location)')
         quit()
 
