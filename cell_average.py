@@ -45,6 +45,7 @@ def plane_intersection(p1, p2, plane):
 
     if d1 == d2:
         print('Parallel line in finding plane intersection (cell_average: plane_intersection)')
+        return p2
     elif d2 == 0:
         return p2
     elif d1 == 0:
@@ -59,6 +60,7 @@ def line_intersection(p1, p2, p3, p4):
     d2 = dis_point_to_line(p2, p3, p4)
     if d1 == d2:
         print('Parallel line in finding line intersection')
+        return p2
     elif d2 == 0:
         return p2
     elif d1 == 0:
@@ -166,50 +168,50 @@ def tetrahedron_l(p1, p2, p3, p4):
     return l_sum
 
 
-# def cuboid_xy_face_average(cube_xyz, point_xyz, values):
-#     """Value of point on rectangular face, node are ordered in CW direction"""
-#     weight_x = [1 / max(1e-9, point_xyz[0]), 1 / max(1e-9, cube_xyz[0] - point_xyz[0])]
-#     weight_y = [1 / max(1e-9, point_xyz[1]), 1 / max(1e-9, cube_xyz[1] - point_xyz[1])]
-#     value_y = [np.average([values[0], values[1]], weights=weight_x),
-#                np.average([values[3], values[2]], weights=weight_x)]
-#     return np.average(value_y, weights=weight_y)
+def cuboid_xy_face_average(cube_xyz, point_xyz, values):
+    """Value of point on rectangular face, node are ordered in CW direction"""
+    weight_x = [1 / max(1e-9, point_xyz[0]), 1 / max(1e-9, cube_xyz[0] - point_xyz[0])]
+    weight_y = [1 / max(1e-9, point_xyz[1]), 1 / max(1e-9, cube_xyz[1] - point_xyz[1])]
+    value_y = [np.average([values[0], values[1]], weights=weight_x),
+               np.average([values[3], values[2]], weights=weight_x)]
+    return np.average(value_y, weights=weight_y)
 
 
-# def cuboid_average(point, nodes, values):
-#     """Point value in cuboid element"""
-#     point = np.array(point)
-#     nodes = np.array(nodes)
-#     x_max = np.max([node[0] for node in nodes])
-#     x_min = np.min([node[0] for node in nodes])
-#     y_max = np.max([node[1] for node in nodes])
-#     y_min = np.min([node[1] for node in nodes])
-#     z_max = np.max([node[2] for node in nodes])
-#     z_min = np.min([node[2] for node in nodes])
-#     cube_xyz = [x_max - x_min, y_max - y_min, z_max - z_min]
-#     point_xyz = [point[0] - x_min, point[1] - y_min, point[2] - z_min]
-#
-#     # Check if point is in element
-#     for x in point_xyz:
-#         if x < 0:
-#             print('Error in point position (cuboid)')
-#             return False, None
-#
-#     # Order nodes and values
-#     ordered_nodes = np.array([[x_min, y_min, z_min], [x_max, y_min, z_min],
-#                               [x_max, y_max, z_min], [x_min, y_max, z_min],
-#                               [x_min, y_min, z_max], [x_max, y_min, z_max],
-#                               [x_max, y_max, z_max], [x_min, y_max, z_max]])
-#     ordered_values = [-1] * 8
-#     for i, node in enumerate(nodes):
-#         for j, ordered_node in enumerate(ordered_nodes):
-#             if np.linalg.norm(node-ordered_node) < 1e-3:
-#                 ordered_values[j] = values[i]
-#     if -1 in ordered_values:
-#         print('Error in cuboid node assignment')
-#         return False, None
-#
-#     # Find point value
-#     weight_z = [1 / max(1e-9, point_xyz[2]), 1 / max(1e-9, cube_xyz[2] - point_xyz[2])]
-#     value_z = [cuboid_xy_face_average(cube_xyz, point_xyz, ordered_values[:4]),
-#                cuboid_xy_face_average(cube_xyz, point_xyz, ordered_values[4:])]
-#     return True, np.average(value_z, weights=weight_z)
+def cuboid_average(point, nodes, values):
+    """Point value in cuboid element"""
+    point = np.array(point)
+    nodes = np.array(nodes)
+    x_max = np.max([node[0] for node in nodes])
+    x_min = np.min([node[0] for node in nodes])
+    y_max = np.max([node[1] for node in nodes])
+    y_min = np.min([node[1] for node in nodes])
+    z_max = np.max([node[2] for node in nodes])
+    z_min = np.min([node[2] for node in nodes])
+    cube_xyz = [x_max - x_min, y_max - y_min, z_max - z_min]
+    point_xyz = [point[0] - x_min, point[1] - y_min, point[2] - z_min]
+
+    # Check if point is in element
+    for x in point_xyz:
+        if x < 0:
+            print('Error in point position (cuboid)')
+            return False, None
+
+    # Order nodes and values
+    ordered_nodes = np.array([[x_min, y_min, z_min], [x_max, y_min, z_min],
+                              [x_max, y_max, z_min], [x_min, y_max, z_min],
+                              [x_min, y_min, z_max], [x_max, y_min, z_max],
+                              [x_max, y_max, z_max], [x_min, y_max, z_max]])
+    ordered_values = [-1] * 8
+    for i, node in enumerate(nodes):
+        for j, ordered_node in enumerate(ordered_nodes):
+            if np.linalg.norm(node-ordered_node) < 1e-3:
+                ordered_values[j] = values[i]
+    if -1 in ordered_values:
+        print('Error in cuboid node assignment')
+        return False, None
+
+    # Find point value
+    weight_z = [1 / max(1e-9, point_xyz[2]), 1 / max(1e-9, cube_xyz[2] - point_xyz[2])]
+    value_z = [cuboid_xy_face_average(cube_xyz, point_xyz, ordered_values[:4]),
+               cuboid_xy_face_average(cube_xyz, point_xyz, ordered_values[4:])]
+    return True, np.average(value_z, weights=weight_z)

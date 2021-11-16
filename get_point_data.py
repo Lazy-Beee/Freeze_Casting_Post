@@ -15,7 +15,7 @@ class GetPointData:
         self.z_pos = yz_pos[1]
         self.elem_size = elem_size
 
-        self.node_tolerance = 0.5 * self.elem_size
+        self.node_tolerance = 1 * self.elem_size
         self.s_step = 1e-6 * self.elem_size
         self.solidification = 0.1
         self.load_data()

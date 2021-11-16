@@ -11,12 +11,11 @@ path = os.getcwd()
 print('-----Ice Front Capture-----')
 
 
-def get_ice_front(frame_list, n, y, start_time, data_file_name, z_list):
+def get_ice_front(frame_list, y, start_time, data_file_name, z_list):
     frame_num = len(frame_list)
-    # z_list = [-0.5e-3 - i * 8e-3 / (n-1) for i in range(n)]
     y_list = [y]
-    ifs.FINGER_VEL = 4.5e-6
-    ifs.ELEM_SIZE = 0.3e-3
+    ifs.FINGER_VEL = 5e-6
+    ifs.ELEM_SIZE = 0.5e-3
 
     ice_front = []
     for i in trange(frame_num):
@@ -24,7 +23,7 @@ def get_ice_front(frame_list, n, y, start_time, data_file_name, z_list):
         ifs.FRAME_TIME = frame_list[i] - start_time  # Pay attention to flow time.
         x_frame = []
         for z in z_list:
-            x_frame.append(ifs.yz_search((y, z), info=False)[0])
+            x_frame.append(ifs.yz_search((y, z), info=False, init_pos=10e-3)[0])
         ice_front.append([int(frame_list[i]), y_list, z_list, x_frame])
 
     return ice_front
@@ -93,22 +92,22 @@ def read_ice_front(file_name):
 # step_size = (end_frame - start_frame) // (frame_num - 1)
 # frame_list = [start_frame + i*step_size for i in range(frame_num)]
 
-start_frame = 5
-end_frame = 162
-step_size = 5
+start_frame = 220
+end_frame = 1200
+step_size = 20
 frame_list = []
 current_frame = start_frame
 while current_frame <= end_frame:
     frame_list.append(current_frame)
     current_frame += step_size
 
-z_list = [-0.5e-3, -2.32e-3, -4.65e-3, -6.97e-3, -9.30e-3]
-data_file_name = '11-11-2021-90-05-162 -30cp\\center-'
-file_path = 'images\\11-11-2021\\90-5-162-30cp'
+z_list = [-1e-3, -3e-3, -6e-3]
+data_file_name = '11-15-2021 sync cold source 5\\center-'
+file_path = 'images\\11-15-2021\\reduced domain 5'
 video_title = 'Ice Front Position Close to Slurry Surface\n90deg/323.15K, hot-finger vel=5\u03BCm/s, y=4.5mm'
-ice_front = get_ice_front(frame_list, 11, 4.5e-3, 180, data_file_name, z_list)
+ice_front = get_ice_front(frame_list, 0e-3, 200, data_file_name, z_list)
 write_ice_front(ice_front, os.path.dirname(path) + f'/{file_path}/data.txt')
-prep_video(ice_front, file_path, video_title)
+# prep_video(ice_front, file_path, video_title)
 # gen_video(file_path, frame_num)
 
 print('-----Ice Front Capture END-----')

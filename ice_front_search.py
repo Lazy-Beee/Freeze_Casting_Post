@@ -15,7 +15,7 @@ FINGER_ANGLE = 90 * np.pi / 180
 FINGER_VEL = 5e-6
 
 
-def finger_location(yz):
+def finger_location(yz, init_pos):
     """Find X position of hot finger surface (offset by 1 element size)"""
     global FINGER_ANGLE, FINGER_VEL, FRAME_TIME
     [y, z] = yz
@@ -25,9 +25,9 @@ def finger_location(yz):
         quit()
 
     if z <= -4.5e-3 - ELEM_SIZE or y <= -1.5e-3 - ELEM_SIZE:
-        return 10e-3 + FRAME_TIME * FINGER_VEL
+        return 10e-3 + init_pos + FRAME_TIME * FINGER_VEL
     else:
-        return (-z) / np.tan(FINGER_ANGLE / 2) + 3e-3 + FRAME_TIME * FINGER_VEL - ELEM_SIZE
+        return (-z) / np.tan(FINGER_ANGLE / 2) + init_pos + FRAME_TIME * FINGER_VEL - ELEM_SIZE
 
 
 def yz_list_generator(y_num, z_num, y_lim=(-4.5e-3, 4.5e-3), z_lim=(-8.5e-3, -0.5e-3)):
@@ -42,7 +42,7 @@ def yz_list_generator(y_num, z_num, y_lim=(-4.5e-3, 4.5e-3), z_lim=(-8.5e-3, -0.
     return y_list, z_list
 
 
-def yz_search(yz, x_range=(), data_type='temp', info=True):
+def yz_search(yz, x_range=(), data_type='temp', info=True, init_pos=10e-3):
     """Search ice front on YZ line using transition temperature"""
     global FILE_NAME, ELEM_SIZE, FRAME_TIME
     [y, z] = yz
@@ -50,10 +50,10 @@ def yz_search(yz, x_range=(), data_type='temp', info=True):
 
     if len(x_range) == 0:
         low = 0
-        high = finger_location(yz)
+        high = finger_location(yz, init_pos)
     else:
         [low, high] = x_range
-        high = min(high, finger_location(yz))
+        high = min(high, finger_location(yz, init_pos))
     mid = (low + high) / 2
 
     if data_type == 'temp':
@@ -83,7 +83,7 @@ def yz_search(yz, x_range=(), data_type='temp', info=True):
                 else:
                     low = mid
             else:
-                print('---WARNING---Binary search failed (ice_front_search: yz_search_lf)', FRAME_TIME, yz, mid_lf)
+                # print('---WARNING---Binary search failed (ice_front_search: yz_search_lf)', FRAME_TIME, yz, mid_lf)
                 break
     else:
         print('---WARNING---Incorrect search data type (ice_front_search: yz_search)')
