@@ -13,11 +13,12 @@ FILE_NAME = []
 FRAME_TIME = 300
 FINGER_ANGLE = 90 * np.pi / 180
 FINGER_VEL = 5e-6
+MOTION_START_TIME = 0
 
 
 def finger_location(yz, init_pos):
     """Find X position of hot finger surface (offset by 1 element size)"""
-    global FINGER_ANGLE, FINGER_VEL, FRAME_TIME
+    global FINGER_ANGLE, FINGER_VEL, FRAME_TIME, MOTION_START_TIME
     [y, z] = yz
 
     if (not -5e-3 <= y <= 5e-3) or (not -10e-3 <= z <= 0):
@@ -25,9 +26,9 @@ def finger_location(yz, init_pos):
         quit()
 
     if z <= -4.5e-3 - ELEM_SIZE or y <= -1.5e-3 - ELEM_SIZE:
-        return 10e-3 + init_pos + FRAME_TIME * FINGER_VEL
+        return 10e-3 + init_pos + max(FRAME_TIME-MOTION_START_TIME, 0) * FINGER_VEL
     else:
-        return (-z) / np.tan(FINGER_ANGLE / 2) + init_pos + FRAME_TIME * FINGER_VEL - ELEM_SIZE
+        return (-z) / np.tan(FINGER_ANGLE / 2) + init_pos + max(FRAME_TIME-MOTION_START_TIME, 0) * FINGER_VEL - ELEM_SIZE
 
 
 def yz_list_generator(y_num, z_num, y_lim=(-4.5e-3, 4.5e-3), z_lim=(-8.5e-3, -0.5e-3)):
@@ -48,12 +49,15 @@ def yz_search(yz, x_range=(), data_type='temp', info=True, init_pos=10e-3):
     [y, z] = yz
     yz_domain = gpd.GetPointData(FILE_NAME, yz, ELEM_SIZE)
 
+    # domain_bound = finger_location(yz, init_pos)
+    domain_bound = yz_domain.max_x
+
     if len(x_range) == 0:
         low = 0
-        high = finger_location(yz, init_pos)
+        high = domain_bound
     else:
         [low, high] = x_range
-        high = min(high, finger_location(yz, init_pos))
+        high = min(high, domain_bound)
     mid = (low + high) / 2
 
     if data_type == 'temp':

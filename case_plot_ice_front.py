@@ -32,7 +32,10 @@ def plot_pos(ice_front, title, fig_name, z_list, vel=True):
     plt.xlabel('Flow Time (s)')
     plt.ylabel('Ice Front Position (mm)')
     for i, z in enumerate(z_list):
-        plt.plot(frame_list, [elem[i] * 1e3 for elem in x_list], '-', label=f'z={z * 1000}mm')
+        if i == 100:
+            plt.plot(frame_list[0:31], [elem[i] * 1e3 for elem in x_list[0:31]], '-', label=f'z={z * 1000}mm')
+        else:
+            plt.plot(frame_list, [elem[i] * 1e3 for elem in x_list], '-', label=f'z={z * 1000}mm')
     plt.title(title[0])
     plt.legend(loc='upper left')
     plt.tight_layout()
@@ -53,8 +56,13 @@ def plot_pos(ice_front, title, fig_name, z_list, vel=True):
         plt.ylabel('Ice Front Velocity (\u03BCm/s)')
         for i, z in enumerate(z_list):
             vel_list = [vel_x_list[j][i] * 1e6 for j in range(len(x_list) - 1)]
-            plt.plot(vel_frame_list, vel_list,
-                     '-', label=f'z={z * 1000}mm, avg_vel={round(np.average(vel_list), 3)}\u03BCm/s')
+            if i == 100:
+                plt.plot(vel_frame_list[0:31], vel_list[0:31],
+                         '-', label=f'z={z * 1000}mm, avg_vel={round(np.average(vel_list), 3)}\u03BCm/s')
+            else:
+                plt.plot(vel_frame_list, vel_list,
+                         '-', label=f'z={z * 1000}mm, avg_vel={round(np.average(vel_list), 3)}\u03BCm/s')
+
         plt.title(title[1])
         # plt.xlim([0, 50])
         plt.legend(loc='lower right')
@@ -115,20 +123,20 @@ def y_plane_gradient():
     print('-----Y Plane gradient test END-----')
 
 
-# title = [
-#     f'X Position of Ice Front\n90deg/323.15K hot-finger vel=5\u03BCm/s, y=0mm',
-#     f'X Velocity of Ice Front\n90deg/323.15K hot-finger vel=5\u03BCm/s, y=0mm',
-# ]
-# fig_name = [
-#     os.path.dirname(path) + f'/images/11-15-2021/reduced domain 5/x position',
-#     os.path.dirname(path) + f'/images/11-15-2021/reduced domain 5/x velocity'
-# ]
-# file_name = os.path.dirname(path) + f'/images/11-15-2021/reduced domain 5/data.txt'
-# z_list = [-1e-3, -3e-3, -6e-3]
-#
-# ice_front = read_ice_front(file_name)
-# plot_pos(ice_front, title, fig_name, z_list)
+title = [
+    f'X Position of Ice Front\n90deg/323.15K hot-finger vel=100\u03BCm/s, y=0mm',
+    f'X Velocity of Ice Front\n90deg/323.15K hot-finger vel=100\u03BCm/s, y=0mm',
+]
+fig_name = [
+    os.path.dirname(path) + f'/images/11-15-2021/reduced domain 100/x position',
+    os.path.dirname(path) + f'/images/11-15-2021/reduced domain 100/x velocity'
+]
+file_name = os.path.dirname(path) + f'/images/11-15-2021/reduced domain 100/data.txt'
+z_list = [-1e-3, -3.5e-3, -6e-3]
 
-y_plane_gradient()
+ice_front = read_ice_front(file_name)
+plot_pos(ice_front, title, fig_name, z_list)
+
+# y_plane_gradient()
 
 print('-----Plot Ice Front END-----')

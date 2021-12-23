@@ -14,11 +14,13 @@ class GetPointData:
         self.y_pos = yz_pos[0]
         self.z_pos = yz_pos[1]
         self.elem_size = elem_size
+        self.max_x = 0
 
         self.node_tolerance = 1 * self.elem_size
         self.s_step = 1e-6 * self.elem_size
         self.solidification = 0.1
         self.load_data()
+        self.find_domain_bound_x()
 
     def load_data(self):
         """Record and sort active node index and x position"""
@@ -297,3 +299,10 @@ class GetPointData:
                 cell_cent, surr_cent = self.get_neighbor_cent(x_pos, active_node)
                 temp_gradient = self.least_square_gradient(cell_cent, surr_cent)
                 return None, [temperature, temp_gradient]
+
+    def find_domain_bound_x(self):
+        for i in range(len(self.yz_node)-1):
+            if self.yz_node[i+1][1] - self.yz_node[i][1] > 5 * self.elem_size:
+                self.max_x = self.yz_node[i][1]
+                break
+
